@@ -1,0 +1,39 @@
+### 1. Ambil Semua Produk (GET)
+GET http://localhost:3000/products
+
+### ---
+
+### 2. Ambil Produk Berdasarkan ID (GET)
+GET http://localhost:3000/products/DAT-TSK-001
+
+### ---
+
+### 3. Tambah Produk Baru (POST)
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "id": "ACC-TST-001",
+    "nama_produk": "Test Produk Baru",
+    "harga_beli": 10000,
+    "harga_jual": 15000,
+    "stok": 25,
+    "kategori_id": 17
+}
+
+### ---
+
+### 4. Update Produk (PATCH)
+PATCH http://localhost:3000/products/ACC-TST-001
+Content-Type: application/json
+
+{
+    "nama_produk": "Test Produk Update",
+    "harga_jual": 16000,
+    "stok": 30
+}
+
+### ---
+
+### 5. Hapus Produk (DELETE)
+DELETE http://localhost:3000/products/ACC-TST-001

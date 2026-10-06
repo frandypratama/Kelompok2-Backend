@@ -2,7 +2,7 @@
   "name": "kelompok2-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "nodemon index.js",
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js"
