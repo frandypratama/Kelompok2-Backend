@@ -1,44 +1,39 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import db from "../config/Database.js";
 import Category from "./CategoryModel.js";
 
-const { DataTypes } = Sequelize;
-
-const Product = db.define('produk', {
+const Product = db.define('products', {
     id: {
-        type: DataTypes.STRING(20),
-        primaryKey: true
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    nama_produk: {
-        type: DataTypes.STRING(150),
+    product_name: {
+        type: DataTypes.STRING,
         allowNull: false
     },
-    harga_beli: {
+    purchase_price: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    harga_jual: {
+    selling_price: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    stok: {
+    stock: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    kategori_id: {
+    category_id: {
         type: DataTypes.INTEGER,
         allowNull: true
     }
 }, {
     freezeTableName: true,
-    timestamps: false
+    timestamps: false // <-- Tambahkan ini juga
 });
 
-Category.hasMany(Product, { foreignKey: çategory_id })
+Product.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+Category.hasMany(Product, { foreignKey: 'category_id', as: 'products' });
 
 export default Product;
-
-// // Auto-sync database jika tabel belum ada (opsional)
-// (async () => {
-//     await db.sync();
-// })();

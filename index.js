@@ -1,13 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
-import db from "./config/database.js";
-
-// Model
+import CategoryRoute from "./routes/CategoryRoute.js";
+import ProductRoute from "./routes/ProductRoute.js";
+import db from "./config/Database.js;
 import "./models/User.js";
-
-// Routes
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
 
@@ -17,42 +14,28 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// ==========================================
-// CORS
-// ==========================================
 app.use(
   cors({
     origin: "http://localhost:5173",
   })
 );
 
-// ==========================================
-// JSON
-// ==========================================
 app.use(express.json());
 
-// ==========================================
-// TEST API
-// ==========================================
+// ROOT
 app.get("/", (req, res) => {
   res.json({
     message: "API POSify aktif",
   });
 });
 
-// ==========================================
-// AUTH
-// ==========================================
+// ROUTES
 app.use("/api/auth", authRoute);
-
-// ==========================================
-// USER CRUD
-// ==========================================
 app.use("/api/users", userRoute);
+app.use('/api/category', CategoryRoute);
+app.use('/api/product', ProductRoute);
 
-// ==========================================
 // DATABASE
-// ==========================================
 try {
   await db.authenticate();
 
@@ -62,9 +45,7 @@ try {
 
   console.log("Database berhasil disinkronkan");
 
-  // ========================================
   // SERVER
-  // ========================================
   app.listen(PORT, () => {
     console.log(
       `Server POSify berjalan di http://localhost:${PORT}`
@@ -76,4 +57,3 @@ try {
     error
   );
 }
-

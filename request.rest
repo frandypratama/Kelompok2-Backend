@@ -1,0 +1,34 @@
+@baseUrl = http://localhost:3000/api
+
+### 1. GET ALL CATEGORIES (Ambil semua kategori bertingkat)
+GET {{baseUrl}}/categories
+
+### 2. GET ALL PRODUCTS (Ambil semua produk beserta kategori)
+GET {{baseUrl}}/products
+
+### 3. GET PRODUCT BY ID (Ambil detail produk berdasarkan ID, ganti angka 1)
+GET {{baseUrl}}/products/1
+
+### 4. CREATE PRODUCT (Tambah produk baru)
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+    "product_name": "Telkomsel Paket Data 10 GB",
+    "purchase_price": 25000,
+    "selling_price": 30000,
+    "stock": 50,
+    "category_id": 11
+}
+
+### 5. UPDATE PRODUCT (Ubah data produk berdasarkan ID, ganti angka 1)
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+
+{
+    "selling_price": 32000,
+    "stock": 45
+}
+
+### 6. DELETE PRODUCT (Hapus produk berdasarkan ID, ganti angka 1)
+DELETE {{baseUrl}}/products/1
