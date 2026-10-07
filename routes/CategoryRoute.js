@@ -1,14 +1,16 @@
 import express from "express";
 import { 
     getCategories, 
-    getCategoriesLevel1, 
-    getCategoriesByParent 
+    createCategory, 
+    updateCategory, 
+    deleteCategory 
 } from "../controllers/CategoryController.js";
 
 const router = express.Router();
 
-router.get('/categories', getCategories);
-router.get('/categories/level1', getCategoriesLevel1);
-router.get('/categories/parent/:parentId', getCategoriesByParent);
+router.get('/', getCategories);              // Mengambil semua kategori bertingkat
+router.post('/', createCategory);           // Menambah kategori baru
+router.put('/:id', updateCategory);         // Mengubah kategori berdasarkan ID
+router.delete('/:id', deleteCategory);      // Menghapus kategori berdasarkan ID
 
 export default router;
