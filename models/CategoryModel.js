@@ -1,13 +1,13 @@
-import { Sequelize } from "sequelize";
-import db from "../config/Database";
+import { Sequelize, DataTypes } from "sequelize";
+import db from "../config/Database.js";
 
-const Category = db.define('kategori', {
+const Category = db.define('categories', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    nama_kategori: {
+    category_name: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -15,15 +15,16 @@ const Category = db.define('kategori', {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'kategori',
+            model: 'categories',
             key: 'id'
         }
     }
 }, {
-    freezeTableName: true // Mencegah Sequelize mengubah nama tabel menjadi plural (kategoris)
+    freezeTableName: true,
+    timestamps: false // <-- Tambahkan ini agar Sequelize tidak mencari createdAt & updatedAt
 });
 
-// Definisikan relasi hierarki (Self-Association)
+// Relasi Self-Association untuk kategori bertingkat
 Category.hasMany(Category, { foreignKey: 'parent_id', as: 'subcategories' });
 Category.belongsTo(Category, { foreignKey: 'parent_id', as: 'parent' });
 

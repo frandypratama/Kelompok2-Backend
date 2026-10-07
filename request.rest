@@ -1,39 +1,34 @@
-### 1. Ambil Semua Produk (GET)
-GET http://localhost:3000/products
+@baseUrl = http://localhost:3000/api
 
-### ---
+### 1. GET ALL CATEGORIES (Ambil semua kategori bertingkat)
+GET {{baseUrl}}/categories
 
-### 2. Ambil Produk Berdasarkan ID (GET)
-GET http://localhost:3000/products/DAT-TSK-001
+### 2. GET ALL PRODUCTS (Ambil semua produk beserta kategori)
+GET {{baseUrl}}/products
 
-### ---
+### 3. GET PRODUCT BY ID (Ambil detail produk berdasarkan ID, ganti angka 1)
+GET {{baseUrl}}/products/1
 
-### 3. Tambah Produk Baru (POST)
-POST http://localhost:3000/products
+### 4. CREATE PRODUCT (Tambah produk baru)
+POST {{baseUrl}}/products
 Content-Type: application/json
 
 {
-    "id": "ACC-TST-001",
-    "nama_produk": "Test Produk Baru",
-    "harga_beli": 10000,
-    "harga_jual": 15000,
-    "stok": 25,
-    "kategori_id": 17
+    "product_name": "Telkomsel Paket Data 10 GB",
+    "purchase_price": 25000,
+    "selling_price": 30000,
+    "stock": 50,
+    "category_id": 11
 }
 
-### ---
-
-### 4. Update Produk (PATCH)
-PATCH http://localhost:3000/products/ACC-TST-001
+### 5. UPDATE PRODUCT (Ubah data produk berdasarkan ID, ganti angka 1)
+PUT {{baseUrl}}/products/1
 Content-Type: application/json
 
 {
-    "nama_produk": "Test Produk Update",
-    "harga_jual": 16000,
-    "stok": 30
+    "selling_price": 32000,
+    "stock": 45
 }
 
-### ---
-
-### 5. Hapus Produk (DELETE)
-DELETE http://localhost:3000/products/ACC-TST-001
+### 6. DELETE PRODUCT (Hapus produk berdasarkan ID, ganti angka 1)
+DELETE {{baseUrl}}/products/1
