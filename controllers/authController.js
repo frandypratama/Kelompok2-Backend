@@ -1,4 +1,3 @@
-//Kelompok2-Backend\controllers\authController.js
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
@@ -32,7 +31,21 @@ export const login = async (req, res) => {
     }
 
     // ==========================================
-    // CARI USER DI DATABASE
+    // CEK SEMUA USER
+    // DEBUG SEMENTARA
+    // ==========================================
+
+    const semuaUser = await User.findAll({
+      attributes: ["id", "nama", "username", "role"],
+    });
+
+    console.log(
+      "USER YANG TERBACA BACKEND:",
+      semuaUser.map((u) => u.toJSON())
+    );
+
+    // ==========================================
+    // CARI USER BERDASARKAN USERNAME
     // ==========================================
 
     const user = await User.findOne({
@@ -73,7 +86,7 @@ export const login = async (req, res) => {
     console.log("PASSWORD BENAR");
 
     // ==========================================
-    // CEK ROLE
+    // CEK ROLE DATABASE
     // ==========================================
 
     const databaseRole = String(user.role)
@@ -85,11 +98,13 @@ export const login = async (req, res) => {
       databaseRole
     );
 
+    // ==========================================
+    // TENTUKAN ROLE FRONTEND
+    // ==========================================
+
     let frontendRole = null;
 
-    // OWNER DAN ADMIN
-    // MASUK KE ADMIN DASHBOARD
-
+    // OWNER / ADMIN
     if (
       databaseRole === "owner" ||
       databaseRole === "admin"
@@ -98,8 +113,6 @@ export const login = async (req, res) => {
     }
 
     // USER
-    // MASUK KE KARYAWAN DASHBOARD
-
     if (databaseRole === "user") {
       frontendRole = "karyawan";
     }
@@ -140,7 +153,7 @@ export const login = async (req, res) => {
     }
 
     // ==========================================
-    // BUAT JWT TOKEN
+    // BUAT JWT
     // ==========================================
 
     const token = jwt.sign(
@@ -149,6 +162,7 @@ export const login = async (req, res) => {
         nama: user.nama,
         username: user.username,
         role: databaseRole,
+        frontendRole: frontendRole,
       },
       process.env.JWT_SECRET,
       {
