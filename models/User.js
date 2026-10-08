@@ -11,7 +11,7 @@ const User = db.define(
       autoIncrement: true,
     },
 
-    nama: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },

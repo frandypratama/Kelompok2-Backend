@@ -67,17 +67,17 @@ export const getUserById = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     const {
-      nama,
+     name ,
       username,
       password,
       role,
     } = req.body;
 
     // Validasi
-    if (!nama || !username || !password || !role) {
+    if (!name || !username || !password || !role) {
       return res.status(400).json({
         message:
-          "Nama, username, password, dan role wajib diisi",
+          "name, username, password, dan role wajib diisi",
       });
     }
 
@@ -95,7 +95,7 @@ export const createUser = async (req, res) => {
     }
 
     const user = await User.create({
-      nama: nama.trim(),
+      name: name.trim(),
       username: username.trim(),
       password,
       role: role.trim().toLowerCase(),
@@ -105,7 +105,7 @@ export const createUser = async (req, res) => {
       message: "User berhasil ditambahkan",
       data: {
         id: user.id,
-        nama: user.nama,
+        name: user.name,
         username: user.username,
         role: user.role,
       },
@@ -129,7 +129,7 @@ export const updateUser = async (req, res) => {
     const { id } = req.params;
 
     const {
-      nama,
+      name,
       username,
       password,
       role,
@@ -169,10 +169,10 @@ export const updateUser = async (req, res) => {
     }
 
     // ======================================
-    // UPDATE NAMA
+    // UPDATE name
     // ======================================
-    if (nama) {
-      user.nama = nama.trim();
+    if (name) {
+      user.name = name.trim();
     }
 
     // ======================================
@@ -195,7 +195,7 @@ export const updateUser = async (req, res) => {
       message: "User berhasil diperbarui",
       data: {
         id: user.id,
-        nama: user.nama,
+        name: user.name,
         username: user.username,
         role: user.role,
       },

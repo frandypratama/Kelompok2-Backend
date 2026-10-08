@@ -36,7 +36,7 @@ export const login = async (req, res) => {
     // ==========================================
 
     const semuaUser = await User.findAll({
-      attributes: ["id", "nama", "username", "role"],
+      attributes: ["id", "name", "username", "role"],
     });
 
     console.log(
@@ -159,7 +159,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       {
         id: user.id,
-        nama: user.nama,
+        name: user.name,
         username: user.username,
         role: databaseRole,
         frontendRole: frontendRole,
@@ -180,7 +180,7 @@ export const login = async (req, res) => {
 
     const userData = {
       id: user.id,
-      nama: user.nama,
+      name: user.name,
       username: user.username,
       role: databaseRole,
       frontendRole: frontendRole,
