@@ -13,7 +13,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Semua endpoint user wajib login
-router.use(authMiddleware);
+//router.use(authMiddleware);
 
 // GET /api/users
 router.get("/", getUsers);
