@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import CategoryRoute from "./routes/CategoryRoute.js";
 import ProductRoute from "./routes/ProductRoute.js";
+import TransactionRoute from "./routes/TransactionRoute.js";
 import db from "./config/Database.js";
 import "./models/User.js";
 import authRoute from "./routes/authRoute.js";
@@ -35,6 +36,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use('/api/categories', CategoryRoute); // Ubah dari 'category' menjadi 'categories'
 app.use('/api/products', ProductRoute);   // Ubah dari 'product' menjadi 'products'
+app.use('/api/transactions', TransactionRoute); // Daftarkan rute transaksi kasir
 // DATABASE
 try {
   await db.authenticate();
