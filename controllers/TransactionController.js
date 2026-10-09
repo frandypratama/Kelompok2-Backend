@@ -6,7 +6,8 @@ import db from "../config/Database.js";
 export const createTransaction = async (req, res) => {
     const t = await db.transaction(); // Menggunakan transaksi database agar aman (atomic)
     try {
-        const { payment, items, user_id } = req.body; 
+        // Mengubah tangkapan body menjadi payment_method (string) dan paid_amount (angka nominal bayar)
+        const { payment_method, paid_amount, items, user_id } = req.body; 
         // items format: [{ product_id: 1, quantity: 2 }, ...]
 
         if (!items || items.length === 0) {
@@ -49,24 +50,29 @@ export const createTransaction = async (req, res) => {
             });
         }
 
-        // 2. Validasi pembayaran kasir
-        if (payment < total_price) {
+        // 2. Tentukan nominal uang bayar berdasarkan metode pembayaran
+        // Jika non-tunai (transfer/qris), nominal bayar otomatis dianggap pas (total_price)
+        const nominalBayar = payment_method === 'cash' ? Number(paid_amount) : total_price;
+
+        // 3. Validasi pembayaran kasir
+        if (nominalBayar < total_price) {
             await t.rollback();
             return res.status(400).json({ success: false, message: "Uang pembayaran kurang dari total belanja!" });
         }
 
-        // 3. Buat nomor invoice otomatis (Contoh: INV-TIMESTAMP)
+        // 4. Buat nomor invoice otomatis
         const invoice_no = `INV-${Date.now()}`;
 
-        // 4. Simpan ke tabel utama transactions
+        // 5. Simpan ke tabel utama transactions (Kolom payment menyimpan string metode)
         const newTransaction = await Transaction.create({
             invoice_no,
             total_price,
-            payment,
+            paid_amount: nominalBayar,
+            payment_method: payment_method || 'cash', // Menyimpan string 'cash', 'transfer', atau 'qris'
             user_id: user_id || null
         }, { transaction: t });
 
-        // 5. Simpan detail item ke tabel transaction_details
+        // 6. Simpan detail item ke tabel transaction_details
         for (const detail of detailsData) {
             detail.transaction_id = newTransaction.id;
             await TransactionDetail.create(detail, { transaction: t });
@@ -74,7 +80,7 @@ export const createTransaction = async (req, res) => {
 
         await t.commit(); // Eksekusi permanen ke database
 
-        const change = payment - total_price; // Hitung kembalian
+        const change = nominalBayar - total_price; // Hitung kembalian
 
         res.status(201).json({
             success: true,
@@ -83,8 +89,9 @@ export const createTransaction = async (req, res) => {
                 transaction_id: newTransaction.id,
                 invoice_no,
                 total_price,
-                payment,
-                change, // Kembalian
+                paid_amount: nominalBayar,
+                payment_method: payment_method,
+                change, 
             }
         });
 

@@ -17,8 +17,12 @@ export const Transaction = db.define('transactions', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    payment: {
+    paid_amount: {
         type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    payment_method: {
+        type: DataTypes.STRING,
         allowNull: false
     },
     user_id: {
