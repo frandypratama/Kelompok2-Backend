@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes } from "sequelize";
 import db from "../config/Database.js";
 import Product from "./ProductModel.js";
+import User from "./User.js";
 
 export const Transaction = db.define('transactions', {
     id: {
@@ -67,5 +68,5 @@ export const TransactionDetail = db.define('transaction_details', {
 // Relasi antar tabel
 Transaction.hasMany(TransactionDetail, { foreignKey: 'transaction_id', as: 'details' });
 TransactionDetail.belongsTo(Transaction, { foreignKey: 'transaction_id' });
-
 TransactionDetail.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+Transaction.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

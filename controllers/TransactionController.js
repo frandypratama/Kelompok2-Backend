@@ -1,6 +1,7 @@
 import { Transaction, TransactionDetail } from "../models/TransactionModel.js";
 import Product from "../models/ProductModel.js";
 import db from "../config/Database.js";
+import User from "../models/User.js";
 
 // Proses Transaksi Kasir (Checkout)
 export const createTransaction = async (req, res) => {
@@ -107,6 +108,11 @@ export const getTransactions = async (req, res) => {
         const transactions = await Transaction.findAll({
             include: [
                 {
+                    model: User,
+                    as: 'user', 
+                    attributes: ['name', 'username']
+                },
+                {
                     model: TransactionDetail,
                     as: 'details',
                     include: [
@@ -137,6 +143,11 @@ export const getTransactionById = async (req, res) => {
         const { id } = req.params;
         const transaction = await Transaction.findByPk(id, {
             include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['name', 'username']
+                },
                 {
                     model: TransactionDetail,
                     as: 'details',
