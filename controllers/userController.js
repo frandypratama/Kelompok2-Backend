@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 
 // ==========================================
 // GET SEMUA USER
@@ -62,12 +63,12 @@ export const getUserById = async (req, res) => {
 
 
 // ==========================================
-// TAMBAH USER
+// TAMBAH USER (DENGAN HASHING PASSWORD)
 // ==========================================
 export const createUser = async (req, res) => {
   try {
     const {
-     name ,
+      name,
       username,
       password,
       role,
@@ -94,10 +95,14 @@ export const createUser = async (req, res) => {
       });
     }
 
+    // Hash password sebelum disimpan ke database
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const user = await User.create({
       name: name.trim(),
       username: username.trim(),
-      password,
+      password: hashedPassword, // Simpan password yang sudah di-hash
       role: role.trim().toLowerCase(),
     });
 
@@ -122,7 +127,7 @@ export const createUser = async (req, res) => {
 
 
 // ==========================================
-// UPDATE USER
+// UPDATE USER (DENGAN HASHING JIKA PASSWORD DIUBAH)
 // ==========================================
 export const updateUser = async (req, res) => {
   try {
@@ -176,10 +181,11 @@ export const updateUser = async (req, res) => {
     }
 
     // ======================================
-    // UPDATE PASSWORD
+    // UPDATE PASSWORD (DI-HASH KEMBALI)
     // ======================================
     if (password) {
-      user.password = password;
+      const saltRounds = 10;
+      user.password = await bcrypt.hash(password, saltRounds);
     }
 
     // ======================================

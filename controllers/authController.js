@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs"; 
 import User from "../models/User.js";
 
 export const login = async (req, res) => {
@@ -72,10 +73,12 @@ export const login = async (req, res) => {
     }
 
     // ==========================================
-    // CEK PASSWORD
+    // CEK PASSWORD MENGGUNAKAN BCRYPT.COMPARE
     // ==========================================
 
-    if (user.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
       console.log("PASSWORD SALAH");
 
       return res.status(401).json({
@@ -104,7 +107,7 @@ export const login = async (req, res) => {
 
     let frontendRole = null;
 
-    // OWNER / ADMIN
+    // ADMIN / OWNER
     if (
       databaseRole === "owner" ||
       databaseRole === "admin"
@@ -112,9 +115,12 @@ export const login = async (req, res) => {
       frontendRole = "admin";
     }
 
-    // USER
-    if (databaseRole === "user") {
-      frontendRole = "karyawan";
+    // KASIR (sebelumnya "user")
+    if (
+      databaseRole === "kasir" || 
+      databaseRole === "user" // (Opsional: jaga-jaga kalau masih ada data lama)
+    ) {
+      frontendRole = "kasir";
     }
 
     console.log(
