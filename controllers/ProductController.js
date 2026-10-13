@@ -3,22 +3,44 @@ import fs from "fs";
 import path from "path";
 import Product from "../models/ProductModel.js";
 import Category from "../models/CategoryModel.js";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
-// Helper untuk menghapus file foto fisik di folder uploads
-const hapusFile = (namaFile) => {
-    if (!namaFile) return;
-    fs.unlink(path.join("uploads", namaFile), () => {});
-};
+// 1. Konfigurasi Multer (Menggunakan ES Module)
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'uploads';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+        }
+        cb(null, uploadDir); // Folder penyimpanan gambar
+    },
+    filename: (req, file, cb) => {
+        // Membuat nama file unik berdasarkan timestamp + angka random
+        const uniqueSuffix = Date.now() + '_' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
 
-// READ (Semua produk + Filter Kategori)
+export const upload = multer({
+    storage: storage,
+    limits: { fileSize: 2 * 1024 * 1024 }, // Batas ukuran file maks 2MB
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|webp/;
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        if (mimetype && extname) {
+            return cb(null, true);
+        }
+        cb(new Error("Hanya file gambar (jpg, jpeg, png, webp) yang diizinkan!"));
+    }
+});
+
+// READ (Semua produk + Search + Filter Kategori)[cite: 11]
 export const getProducts = async (req, res) => {
     try {
-        const page = Math.max(parseInt(req.query.page) || 1, 1);
-        const limit = Math.min(Math.max(parseInt(req.query.limit) || 5, 1), 50);
-        const offset = (page - 1) * limit;
-
-        // Nilai default sort dan order
-        const { search, category_id, sort = "id", order = "DESC" } = req.query;
+        const { category_id } = req.query;
 
         let filterCondition = {};
         if (category_id) {
@@ -58,7 +80,8 @@ export const getProducts = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-// READ (Berdasarkan ID)
+
+// READ (Berdasarkan ID)[cite: 11]
 export const getProductById = async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id, {
@@ -71,7 +94,7 @@ export const getProductById = async (req, res) => {
     }
 };
 
-// CREATE (Tambah Produk)
+// CREATE (Tambah Produk dengan dukungan gambar)
 export const createProduct = async (req, res) => {
     const image = req.file ? req.file.filename : null;
     try {
@@ -82,12 +105,15 @@ export const createProduct = async (req, res) => {
             return res.status(400).json({ success: false, message: "Semua field wajib diisi!" });
         }
 
+        // Ambil nama file gambar jika di-upload, jika tidak set null
+        const image = req.file ? req.file.filename : null;
+
         const newProduct = await Product.create({ 
             product_name, 
-            purchase_price, 
-            selling_price, 
-            stock, 
-            category_id,
+            purchase_price: Number(purchase_price), 
+            selling_price: Number(selling_price), 
+            stock: Number(stock), 
+            category_id: Number(category_id),
             image 
         });
 
@@ -98,7 +124,7 @@ export const createProduct = async (req, res) => {
     }
 };
 
-// UPDATE (Edit Produk)
+// UPDATE (Edit Produk dengan dukungan gambar)
 export const updateProduct = async (req, res) => {
     const imageBaru = req.file ? req.file.filename : null;
     try {
@@ -109,15 +135,17 @@ export const updateProduct = async (req, res) => {
         }
 
         const { product_name, purchase_price, selling_price, stock, category_id } = req.body;
-        const imageLama = product.image;
+        
+        // Jika ada file gambar baru yang di-upload, gunakan file baru. Jika tidak, tetap pakai gambar lama.
+        const image = req.file ? req.file.filename : product.image;
 
         await Product.update({
             product_name: product_name || product.product_name,
-            purchase_price: purchase_price !== undefined ? purchase_price : product.purchase_price,
-            selling_price: selling_price !== undefined ? selling_price : product.selling_price,
-            stock: stock !== undefined ? stock : product.stock,
-            category_id: category_id || product.category_id,
-            image: imageBaru || imageLama 
+            purchase_price: purchase_price !== undefined ? Number(purchase_price) : product.purchase_price,
+            selling_price: selling_price !== undefined ? Number(selling_price) : product.selling_price,
+            stock: stock !== undefined ? Number(stock) : product.stock,
+            category_id: category_id ? Number(category_id) : product.category_id,
+            image
         }, { where: { id: req.params.id } });
 
         if (imageBaru) {
@@ -131,13 +159,17 @@ export const updateProduct = async (req, res) => {
     }
 };
 
-// DELETE (Hapus Produk)
+// DELETE (Hapus Produk)[cite: 11]
 export const deleteProduct = async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id);
         if (!product) return res.status(404).json({ success: false, message: "Produk tidak ditemukan" });
 
-        const image = product.image;
+        // Opsional: Hapus file fisik gambar dari folder uploads jika ada
+        if (product.image && fs.existsSync(`uploads/${product.image}`)) {
+            fs.unlinkSync(`uploads/${product.image}`);
+        }
+
         await Product.destroy({ where: { id: req.params.id } });
         
         hapusFile(image);
