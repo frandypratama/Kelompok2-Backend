@@ -113,7 +113,7 @@ export const updateProduct = async (req, res) => {
 
         const { product_name, purchase_price, selling_price, stock, category_id } = req.body;
         const imageLama = product.image;
-        const image = imageBaru || imageLama;
+        const image = imageBaru || imageLama; // Menentukan gambar yang akan dipakai
 
         await Product.update({
             product_name: product_name || product.product_name,
@@ -121,8 +121,10 @@ export const updateProduct = async (req, res) => {
             selling_price: selling_price !== undefined ? Number(selling_price) : product.selling_price,
             stock: stock !== undefined ? Number(stock) : product.stock,
             category_id: category_id ? Number(category_id) : product.category_id,
+            image, // <-- TAMBAHKAN BARIS INI AGAR GAMBAR TERKIRIM KE DATABASE
         }, { where: { id: req.params.id } });
 
+        // Jika ada gambar baru, hapus gambar lama dari folder uploads
         if (imageBaru) {
             hapusFile(imageLama);
         }
