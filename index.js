@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import CategoryRoute from "./routes/CategoryRoute.js";
 import ProductRoute from "./routes/ProductRoute.js";
 import TransactionRoute from "./routes/TransactionRoute.js";
@@ -21,6 +23,10 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+// Konfigurasi __dirname untuk ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -30,6 +36,9 @@ app.use(
 
 app.use(express.json());
 
+// DAFTARKAN FOLDER UPLOADS AGAR BISA DIAKSES PUBLIK
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // ROOT
 app.get("/", (req, res) => {
   res.json({
@@ -37,6 +46,8 @@ app.get("/", (req, res) => {
   });
 });
 
+//upload gambar
+app.use("/uploads", express.static("uploads"));
 // ROUTES
 // ROUTES
 app.use("/api/auth", authRoute);
