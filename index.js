@@ -9,6 +9,11 @@ import db from "./config/Database.js";
 import "./models/User.js";
 import authRoute from "./routes/authRoute.js";
 import userRoute from "./routes/userRoute.js";
+import PengeluaranRoute from "./routes/PengeluaranRoute.js";
+import PengeluaranCategory from "./routes/PengeluaranCategoryRoute.js";
+import "./models/PengeluaranCategoryModel.js";
+import "./models/PengeluaranModel.js";
+
 
 dotenv.config();
 
@@ -19,6 +24,7 @@ const PORT = process.env.PORT || 3000;
 app.use(
   cors({
     origin: "http://localhost:5173",
+
   })
 );
 
@@ -39,6 +45,9 @@ app.use('/api/categories', CategoryRoute); // Ubah dari 'category' menjadi 'cate
 app.use('/api/products', ProductRoute);   // Ubah dari 'product' menjadi 'products'
 app.use('/api/transactions', TransactionRoute); // Daftarkan rute transaksi kasir
 app.use('/api', ReportRoute);
+app.use("/api/pengeluaran/kategori", PengeluaranCategory);
+app.use("/api/pengeluaran", PengeluaranRoute);
+
 // DATABASE
 try {
   await db.authenticate();
