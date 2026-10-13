@@ -27,6 +27,10 @@ const Product = db.define('products', {
     category_id: {
         type: DataTypes.INTEGER,
         allowNull: true
+    },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true,
     }
 }, {
     freezeTableName: true,

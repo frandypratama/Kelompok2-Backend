@@ -2,11 +2,14 @@
 -- 1. PEMBUATAN DATABASE DAN TABEL
 -- ==========================================================
 
+-- Hapus database lama jika ada untuk menghindari konflik data
+DROP DATABASE IF EXISTS db_konter;
+
 -- Membuat database baru
-CREATE DATABASE IF NOT EXISTS db_konter;
+CREATE DATABASE db_konter;
 USE db_konter;
 
--- Tabel Kategori Bertingkat (Kategori Utama -> Subkategori -> Sub-Subkategori)
+-- Tabel Kategori 2 Level (Kategori Utama -> Subkategori)
 CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_name VARCHAR(100) NOT NULL,
@@ -14,13 +17,14 @@ CREATE TABLE IF NOT EXISTS categories (
     CONSTRAINT fk_parent FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
--- Tabel Produk dengan ID Auto Increment (Dimulai dari 1)
+-- Tabel Produk dengan tambahan kolom 'image' untuk Multer
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product_name VARCHAR(150) NOT NULL,
     purchase_price INT NOT NULL,
     selling_price INT NOT NULL,
     stock INT NOT NULL,
+    image VARCHAR(255) DEFAULT NULL,
     category_id INT,
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
@@ -39,157 +43,103 @@ CREATE TABLE IF NOT EXISTS users (
 -- 2. MEMASUKKAN DATA USERS (LOGIN)
 -- ==========================================================
 
-INSERT IGNORE INTO users (name, username, password, role) VALUES 
-('abc1', 'abc1', '12345', 'owner'),
-('abc2', 'abc2', '12345', 'admin'),
-('abc3', 'abc3', '12345', 'user');
+INSERT INTO users (id, name, username, password, role) VALUES 
+(1, 'abc1', 'abc1', '12345', 'owner'),
+(2, 'abc2', 'abc2', '12345', 'admin'),
+(3, 'abc3', 'abc3', '12345', 'user');
 
 
 -- ==========================================================
--- 3. MEMASUKKAN DATA KATEGORI (BERTINGKAT)
+-- 3. MEMASUKKAN DATA KATEGORI (2 LEVEL)
 -- ==========================================================
 
 -- Level 1: Kategori Utama
 INSERT INTO categories (id, category_name, parent_id) VALUES 
-(1, 'Fisik', NULL),
-(2, 'Digital', NULL);
+(1, 'Voucher', NULL),
+(2, 'Kartu Prabayar', NULL),
+(3, 'Aksesoris HP', NULL),
+(4, 'Sembako', NULL),
+(5, 'Non-Sembako', NULL);
 
 -- Level 2: Subkategori
 INSERT INTO categories (id, category_name, parent_id) VALUES 
-(3, 'Voucher', 1),
-(4, 'Kartu Prabayar', 1),
-(5, 'Aksesoris', 1),
-(6, 'Pulsa', 2),
-(7, 'Token Listrik', 2),
-(8, 'E-Wallet', 2),
-(9, 'Voucher Game', 2),
-(10, 'Transfer Antar Bank', 2);
-
--- Level 3: Sub-Subkategori (Brand / Jenis)
-INSERT INTO categories (id, category_name, parent_id) VALUES 
--- Di bawah Voucher (ID 3)
-(11, 'Telkomsel', 3),
-(12, 'Tri (3)', 3),
-(13, 'Axis', 3),
--- Di bawah Kartu Prabayar (ID 4)
-(14, 'Telkomsel Prabayar', 4),
-(15, 'Tri Prabayar', 4),
-(16, 'Axis Prabayar', 4),
--- Di bawah Aksesoris (ID 5)
-(17, 'Kabel Charger', 5),
-(18, 'Adapter Charger', 5),
--- Di bawah Pulsa (ID 6)
-(19, 'Pulsa Telkomsel', 6),
-(20, 'Pulsa Tri', 6),
-(21, 'Pulsa Axis', 6),
--- Di bawah Token Listrik (ID 7)
-(22, 'Token PLN', 7),
--- Di bawah E-Wallet (ID 8)
-(23, 'Gopay', 8),
-(24, 'DANA', 8),
-(25, 'ShopeePay', 8),
--- Di bawah Voucher Game (ID 9)
-(26, 'Free Fire', 9),
-(27, 'Mobile Legends', 9),
--- Di bawah Transfer Antar Bank (ID 10)
-(28, 'Bank BRI', 10),
-(29, 'Bank Seabank', 10);
+-- Di bawah Voucher (ID 1)
+(6, 'Telkomsel', 1),
+(7, 'Tri (3)', 1),
+(8, 'Axis', 1),
+-- Di bawah Kartu Prabayar (ID 2)
+(9, 'Telkomsel Prabayar', 2),
+(10, 'Tri Prabayar', 2),
+(11, 'Axis Prabayar', 2),
+-- Di bawah Aksesoris HP (ID 3)
+(12, 'Kabel Charger', 3),
+(13, 'Adapter Charger', 3),
+-- Di bawah Sembako (ID 4)
+(14, 'Beras', 4),
+(15, 'Gula', 4),
+(16, 'Minyak Goreng', 4),
+(17, 'Gas Elpiji', 4),
+(18, 'Garam', 4),
+(19, 'Telur', 4),
+(20, 'Tepung', 4),
+(21, 'Susu', 4),
+-- Di bawah Non-Sembako (ID 5)
+(22, 'Air Mineral', 5),
+(23, 'Kopi', 5),
+(24, 'Aneka Snack', 5),
+(25, 'Rokok', 5);
 
 
 -- ==========================================================
--- 4. MEMASUKKAN DATA PRODUK (ID AUTO INCREMENT)
+-- 4. MEMASUKKAN DATA PRODUK
 -- ==========================================================
 
--- Kategori Fisik: Voucher Paket Data & Perdana & Aksesoris
-INSERT INTO products (product_name, purchase_price, selling_price, stock, category_id) VALUES
--- Voucher Telkomsel (category_id: 11)
-('Telkomsel Paket Data 1 Hari 1.5 GB', 5000, 7000, 50, 11),
-('Telkomsel Paket Data 2 Hari 3 GB', 8500, 11000, 45, 11),
-('Telkomsel Paket Data 3 Hari 5 GB', 13000, 16000, 40, 11),
-('Telkomsel Paket Data 5 Hari 7 GB', 18000, 22000, 35, 11),
-('Telkomsel Paket Data 7 Hari 10 GB', 25000, 30000, 60, 11),
-('Telkomsel Paket Data 14 Hari 15 GB', 45000, 52000, 30, 11),
-('Telkomsel Paket Data 28 Hari 25 GB', 70000, 80000, 100, 11),
+INSERT INTO products (product_name, purchase_price, selling_price, stock, image, category_id) VALUES
+-- Voucher Telkomsel (category_id: 6)
+('Telkomsel Paket Data 1 Hari 1.5 GB', 5000, 7000, 50, NULL, 6),
+('Telkomsel Paket Data 7 Hari 10 GB', 25000, 30000, 60, NULL, 6),
 
--- Voucher Tri (category_id: 12)
-('Tri AON / Data 1 Hari 2 GB', 4500, 6500, 50, 12),
-('Tri Data 2 Hari 4 GB', 7500, 10000, 45, 12),
-('Tri Data 3 Hari 6 GB', 11000, 14000, 40, 12),
-('Tri Data 5 Hari 9 GB', 15000, 19000, 35, 12),
-('Tri Data 7 Hari 15 GB', 22000, 27000, 55, 12),
-('Tri Data 14 Hari 25 GB', 38000, 45000, 30, 12),
-('Tri Data 28 Hari 32 GB', 60000, 70000, 90, 12),
+-- Voucher Tri (category_id: 7)
+('Tri AON / Data 1 Hari 2 GB', 4500, 6500, 50, NULL, 7),
+('Tri Data 7 Hari 15 GB', 22000, 27000, 55, NULL, 7),
 
--- Voucher Axis (category_id: 13)
-('Axis Data 1 Hari 1.5 GB', 4000, 6000, 50, 13),
-('Axis Data 2 Hari 3 GB', 7000, 9500, 45, 13),
-('Axis Data 3 Hari 5 GB', 10500, 13500, 40, 13),
-('Axis Data 5 Hari 8 GB', 14000, 18000, 35, 13),
-('Axis Data 7 Hari 12 GB', 20000, 25000, 60, 13),
-('Axis Data 14 Hari 20 GB', 35000, 42000, 25, 13),
-('Axis Data 28 Hari 30 GB', 58000, 68000, 85, 13),
+-- Voucher Axis (category_id: 8)
+('Axis Data 1 Hari 1.5 GB', 4000, 6000, 50, NULL, 8),
+('Axis Data 7 Hari 12 GB', 20000, 25000, 60, NULL, 8),
 
--- Kartu Prabayar Telkomsel (category_id: 14)
-('Perdana Telkomsel 0812-3456-7890', 12000, 15000, 2, 14),
-('Perdana Telkomsel 0813-9876-5432', 12000, 15000, 1, 14),
-('Perdana Telkomsel 0821-1122-3344', 12000, 15000, 3, 14),
-('Perdana Telkomsel 0822-5566-7788', 12000, 15000, 1, 14),
-('Perdana Telkomsel 0852-9900-1122', 12000, 15000, 2, 14),
+-- Kartu Prabayar Telkomsel (category_id: 9)
+('Perdana Telkomsel 0812-3456-7890', 12000, 15000, 2, NULL, 9),
+('Perdana Telkomsel 0813-9876-5432', 12000, 15000, 1, NULL, 9),
 
--- Kartu Prabayar Tri (category_id: 15)
-('Perdana Tri (3) 0896-1234-5678', 10000, 13000, 4, 15),
-('Perdana Tri (3) 0895-8765-4321', 10000, 13000, 2, 15),
-('Perdana Tri (3) 0897-3344-5566', 10000, 13000, 3, 15),
-('Perdana Tri (3) 0898-7788-9900', 10000, 13000, 1, 15),
-('Perdana Tri (3) 0899-2233-4455', 10000, 13000, 2, 15),
+-- Kartu Prabayar Tri (category_id: 10)
+('Perdana Tri (3) 0896-1234-5678', 10000, 13000, 4, NULL, 10),
 
--- Kartu Prabayar Axis (category_id: 16)
-('Perdana Axis 0838-1234-5678', 10000, 13000, 3, 16),
-('Perdana Axis 0831-9876-5432', 10000, 13000, 2, 16),
-('Perdana Axis 0832-4455-6677', 10000, 13000, 4, 16),
-('Perdana Axis 0833-8899-0011', 10000, 13000, 1, 16),
-('Perdana Axis 0838-5544-3322', 10000, 13000, 2, 16),
+-- Kartu Prabayar Axis (category_id: 11)
+('Perdana Axis 0838-1234-5678', 10000, 13000, 3, NULL, 11),
 
--- Aksesoris (category_id: 17 & 18)
-('Kabel Charger Micro USB', 10000, 18000, 15, 17),
-('Kabel Charger Type C', 15000, 25000, 20, 17),
-('Kabel Charger Lightning (iPhone)', 20000, 35000, 10, 17),
-('Adapter Charger Digital / Kepala Charger', 25000, 40000, 12, 18);
+-- Aksesoris HP (category_id: 12 & 13)
+('Kabel Charger Micro USB', 10000, 18000, 15, NULL, 12),
+('Kabel Charger Type C', 15000, 25000, 20, NULL, 12),
+('Adapter Charger Digital / Kepala Charger', 25000, 40000, 12, NULL, 13),
 
+-- SEMBAKO --
+('Beras Premium 5 Kg', 65000, 72000, 25, NULL, 14),
+('Beras Medium 5 Kg', 55000, 61000, 30, NULL, 14),
+('Gula Pasir 1 Kg', 16000, 18500, 40, NULL, 15),
+('Minyak Goreng 1 Liter', 15000, 17500, 35, NULL, 16),
+('Minyak Goreng 2 Liter', 30000, 34500, 20, NULL, 16),
+('Gas Elpiji 3 Kg', 19000, 22000, 15, NULL, 17),
+('Garam Beryodium 250g', 2500, 4000, 50, NULL, 18),
+('Telur Ayam 1 Kg', 24000, 28000, 30, NULL, 19),
+('Tepung Terigu 1 Kg', 11000, 13500, 25, NULL, 20),
+('Susu Kental Manis Kaleng', 11500, 14000, 25, NULL, 21),
 
--- Kategori Digital: Pulsa, Token, E-Wallet, Voucher Game, Transfer Bank
-INSERT INTO products (product_name, purchase_price, selling_price, stock, category_id) VALUES
--- Pulsa (category_id: 19, 20, 21)
-('Pulsa Telkomsel 10.000', 10300, 12000, 999, 19),
-('Pulsa Tri (3) 10.000', 10100, 11500, 999, 20),
-('Pulsa Axis 10.000', 10100, 11500, 999, 21),
-
--- Token Listrik (category_id: 22)
-('Token Listrik PLN 20.000', 20150, 22000, 999, 22),
-
--- E-Wallet (category_id: 23, 24, 25)
-('Top Up Gopay 50.000', 50500, 52000, 999, 23),
-('Top Up DANA 50.000', 50500, 52000, 999, 24),
-('Top Up ShopeePay 50.000', 50500, 52000, 999, 25),
-
--- Voucher Game Free Fire (category_id: 26)
-('Free Fire 5 Diamonds', 1000, 1500, 999, 26),
-('Free Fire 12 Diamonds', 2000, 3000, 999, 26),
-('Free Fire 50 Diamonds', 7000, 8500, 999, 26),
-('Free Fire 70 Diamonds', 9500, 11500, 999, 26),
-('Free Fire 140 Diamonds', 18000, 21000, 999, 26),
-('Free Fire 355 Diamonds', 45000, 50000, 999, 26),
-('Free Fire 720 Diamonds', 90000, 98000, 999, 26),
-
--- Voucher Game Mobile Legends (category_id: 27)
-('Mobile Legends 11 Diamonds', 3500, 5000, 999, 27),
-('Mobile Legends 36 Diamonds', 10000, 12000, 999, 27),
-('Mobile Legends 85 Diamonds', 23000, 26000, 999, 27),
-('Mobile Legends 172 Diamonds', 46000, 51000, 999, 27),
-('Mobile Legends 284 Diamonds', 75000, 82000, 999, 27),
-('Mobile Legends 408 Diamonds', 105000, 115000, 999, 27),
-('Mobile Legends 875 Diamonds', 220000, 235000, 999, 27),
-
--- Transfer Antar Bank (category_id: 28 & 29)
-('Jasa Transfer Antar Bank BRI (s.d 1 Juta)', 2500, 5000, 999, 28),
-('Jasa Transfer Antar Bank Seabank (s.d 1 Juta)', 1000, 3000, 999, 29);
+-- NON-SEMBAKO --
+('Air Mineral Botol 600ml', 3000, 5000, 48, NULL, 22),
+('Air Mineral Dus 24x600ml', 45000, 52000, 10, NULL, 22),
+('Kopi Sachet Renceng (isi 10)', 11000, 14000, 20, NULL, 23),
+('Kopi Bubuk Hitam 200g', 12000, 15000, 15, NULL, 23),
+('Keripik Singkong Balado', 7000, 10000, 20, NULL, 24),
+('Wafer Coklat Pack', 5000, 8000, 25, NULL, 24),
+('Rokok Filter Bungkus A', 30000, 33000, 10, NULL, 25),
+('Rokok Filter Bungkus B', 28000, 31000, 10, NULL, 25);
