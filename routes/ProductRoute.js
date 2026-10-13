@@ -6,13 +6,17 @@ import {
     updateProduct, 
     deleteProduct 
 } from "../controllers/ProductController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import { uploadFoto } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
+router.use(authMiddleware);
+
 router.get('/', getProducts);
 router.get('/:id', getProductById);
-router.post('/', createProduct);
-router.put('/:id', updateProduct);
+router.post('/', uploadFoto, createProduct);
+router.patch('/:id', uploadFoto, updateProduct); // Ubah dari router.put menjadi router.patch
 router.delete('/:id', deleteProduct);
 
 export default router;

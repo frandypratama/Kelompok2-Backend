@@ -31,6 +31,8 @@ app.get("/", (req, res) => {
   });
 });
 
+//upload gambar
+app.use("/uploads", express.static("uploads"));
 // ROUTES
 // ROUTES
 app.use("/api/auth", authRoute);
@@ -39,6 +41,8 @@ app.use('/api/categories', CategoryRoute); // Ubah dari 'category' menjadi 'cate
 app.use('/api/products', ProductRoute);   // Ubah dari 'product' menjadi 'products'
 app.use('/api/transactions', TransactionRoute); // Daftarkan rute transaksi kasir
 app.use('/api', ReportRoute);
+
+
 // DATABASE
 try {
   await db.authenticate();
