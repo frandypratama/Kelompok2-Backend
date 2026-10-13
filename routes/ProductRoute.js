@@ -14,13 +14,9 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get('/', getProducts);
-// Gunakan upload.single('image') untuk menangkap 1 file dengan field name 'image' dari FormData frontend
-router.post("/", upload.single("image"), createProduct);
-router.put("/:id", upload.single("image"), updateProduct);
 router.get('/:id', getProductById);
-router.post('/', uploadFoto, createProduct);
-router.patch('/:id', uploadFoto, updateProduct); // Ubah dari router.put menjadi router.patch
+router.post('/', uploadFoto, createProduct);       // Menggunakan uploadFoto
+router.patch('/:id', uploadFoto, updateProduct);   // Menggunakan uploadFoto dengan method PATCH
 router.delete('/:id', deleteProduct);
-
 
 export default router;
