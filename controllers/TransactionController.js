@@ -2,6 +2,7 @@ import { Transaction, TransactionDetail } from "../models/TransactionModel.js";
 import Product from "../models/ProductModel.js";
 import db from "../config/Database.js";
 import User from "../models/User.js";
+import { Op } from "sequelize";
 
 // Proses Transaksi Kasir (Checkout)
 export const createTransaction = async (req, res) => {
@@ -102,10 +103,29 @@ export const createTransaction = async (req, res) => {
     }
 };
 
-// Ambil Riwayat Transaksi Kasir
+// Ambil Riwayat Transaksi Kasir dengan Pagination
 export const getTransactions = async (req, res) => {
     try {
-        const transactions = await Transaction.findAll({
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+        const offset = (page - 1) * limit;
+
+        const { search, payment_method } = req.query;
+
+        let filterCondition = {};
+        
+        // Perbaikan: Pastikan filter metode pembayaran masuk ke kondisi where database
+        if (payment_method && payment_method !== "") {
+            filterCondition.payment_method = payment_method;
+        }
+        if (search) {
+            filterCondition.invoice_no = { [Op.like]: `%${search}%` };
+        }
+
+        const { count, rows } = await Transaction.findAndCountAll({
+            where: filterCondition, // <-- Filter diterapkan di sini
+            limit,
+            offset,
             include: [
                 {
                     model: User,
@@ -130,9 +150,16 @@ export const getTransactions = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Berhasil mengambil riwayat transaksi",
-            data: transactions
+            data: rows,
+            pagination: {
+                page,
+                limit,
+                totalItems: count, // Count akan otomatis menyesuaikan (menjadi 0 jika QRIS kosong)
+                totalPages: Math.ceil(count / limit) || 1,
+            }
         });
     } catch (error) {
+        console.error("Error getTransactions:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
